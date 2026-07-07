@@ -46,18 +46,16 @@ export function Hero() {
             watch the game — they wear it.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 uppercase font-bold tracking-wide">
-              <Link href="/shop">
-                Shop Now <ArrowRight className="ml-1 size-4" />
-              </Link>
+            <Button render={<Link href="/shop" />} size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 uppercase font-bold tracking-wide">
+              Shop Now <ArrowRight className="ml-1 size-4" />
             </Button>
             <Button
-              asChild
+              render={<Link href="/shop?filter=trending" />}
               size="lg"
               variant="outline"
               className="border-foreground/20 bg-transparent text-foreground hover:bg-foreground/5 uppercase font-bold tracking-wide"
             >
-              <Link href="/shop?filter=trending">Trending Jerseys</Link>
+              Trending Jerseys
             </Button>
           </div>
 

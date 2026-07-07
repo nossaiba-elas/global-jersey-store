@@ -31,8 +31,8 @@ export default function ProfilePage() {
         <UserCircle className="mx-auto size-12 text-muted-foreground" />
         <h1 className="text-2xl font-bold mt-4">You're not signed in</h1>
         <p className="text-muted-foreground mt-2">Sign in to view your profile and orders.</p>
-        <Button asChild className="mt-6">
-          <Link href="/login">Sign In</Link>
+        <Button render={<Link href="/login" />} className="mt-6">
+          Sign In
         </Button>
       </div>
     );

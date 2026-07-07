@@ -72,10 +72,8 @@ export function AdminDashboard() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Admin Dashboard</h1>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2" onClick={() => setEditing(null)}>
-              <Plus className="size-4" /> Add Product
-            </Button>
+          <DialogTrigger render={<Button className="gap-2" onClick={() => setEditing(null)} />}>
+            <Plus className="size-4" /> Add Product
           </DialogTrigger>
           <ProductFormDialog editing={editing} onSave={handleSave} />
         </Dialog>

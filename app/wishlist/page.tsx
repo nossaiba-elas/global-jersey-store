@@ -17,8 +17,8 @@ export default function WishlistPage() {
         <Heart className="mx-auto size-12 text-muted-foreground" />
         <h1 className="text-2xl font-bold mt-4">Your wishlist is empty</h1>
         <p className="text-muted-foreground mt-2">Tap the heart on any jersey to save it here.</p>
-        <Button asChild className="mt-6">
-          <Link href="/shop">Browse Jerseys</Link>
+        <Button render={<Link href="/shop" />} className="mt-6">
+          Browse Jerseys
         </Button>
       </div>
     );

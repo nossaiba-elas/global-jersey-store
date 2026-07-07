@@ -49,8 +49,8 @@ export function CartContent() {
         <ShoppingBag className="mx-auto size-12 text-muted-foreground" />
         <h1 className="text-2xl font-bold mt-4">Your cart is empty</h1>
         <p className="text-muted-foreground mt-2">Looks like you haven&apos;t added any jerseys yet.</p>
-        <Button asChild className="mt-6">
-          <Link href="/shop">Start Shopping</Link>
+        <Button render={<Link href="/shop" />} className="mt-6">
+          Start Shopping
         </Button>
       </div>
     );

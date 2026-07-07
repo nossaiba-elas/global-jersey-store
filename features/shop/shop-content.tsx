@@ -81,10 +81,8 @@ export function ShopContent() {
         </div>
         <div className="flex items-center gap-2">
           <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="lg:hidden gap-2">
-                <SlidersHorizontal className="size-4" /> Filters
-              </Button>
+            <SheetTrigger render={<Button variant="outline" className="lg:hidden gap-2" />}>
+              <SlidersHorizontal className="size-4" /> Filters
             </SheetTrigger>
             <SheetContent side="left" className="w-80 overflow-y-auto p-6">
               <SheetTitle className="mb-4">Filters</SheetTitle>

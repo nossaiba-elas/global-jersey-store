@@ -44,10 +44,8 @@ export function Header() {
     <header className="sticky top-0 z-40 w-full border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75 shadow-[inset_0_-1px_0_0_var(--border),0_1px_0_0_var(--gold)]">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
         <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu">
-              <Menu className="size-5" />
-            </Button>
+          <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu" />}>
+            <Menu className="size-5" />
           </SheetTrigger>
           <SheetContent side="left" className="w-72">
             <SheetTitle className="px-4 pt-4">Global Jersey Store</SheetTitle>

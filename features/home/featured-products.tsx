@@ -13,8 +13,8 @@ export function FeaturedProducts() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Featured Jerseys</h2>
-          <Button variant="ghost" asChild>
-            <Link href="/shop">View all</Link>
+          <Button variant="ghost" render={<Link href="/shop" />}>
+            View all
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
