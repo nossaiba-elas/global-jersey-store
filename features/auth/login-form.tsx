@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { FirebaseError } from "firebase/app";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +25,38 @@ const schema = z.object({
 });
 
 type FormValues = z.infer<typeof schema>;
+
+function friendlyAuthError(err: unknown): string {
+  if (err instanceof FirebaseError) {
+    switch (err.code) {
+      case "auth/invalid-api-key":
+      case "auth/api-key-not-valid.-please-pass-a-valid-api-key.":
+        return "Firebase isn't connected yet — check the NEXT_PUBLIC_FIREBASE_* environment variables.";
+      case "auth/email-already-in-use":
+        return "An account already exists with this email. Try signing in instead.";
+      case "auth/invalid-credential":
+      case "auth/wrong-password":
+      case "auth/user-not-found":
+        return "Incorrect email or password.";
+      case "auth/unauthorized-domain":
+        return "This domain isn't authorized in Firebase yet — add it under Authentication > Settings > Authorized domains.";
+      case "auth/popup-closed-by-user":
+      case "auth/cancelled-popup-request":
+        return "Google sign-in was closed before completing.";
+      case "auth/popup-blocked":
+        return "Your browser blocked the Google sign-in popup — allow popups and try again.";
+      case "auth/operation-not-allowed":
+        return "This sign-in method isn't enabled yet in Firebase — enable it under Authentication > Sign-in method.";
+      case "auth/weak-password":
+        return "Password is too weak — use at least 6 characters.";
+      case "auth/network-request-failed":
+        return "Network error — check your connection and try again.";
+      default:
+        return `Auth error (${err.code}). ${err.message}`;
+    }
+  }
+  return err instanceof Error ? err.message : "Something went wrong. Please try again.";
+}
 
 export function LoginForm() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -47,9 +80,7 @@ export function LoginForm() {
       }
       router.push("/profile");
     } catch (err) {
-      toast.error(
-        "Firebase isn't connected yet — add your project credentials to .env.local to enable real auth."
-      );
+      toast.error(friendlyAuthError(err));
     } finally {
       setLoading(false);
     }
@@ -61,9 +92,7 @@ export function LoginForm() {
       await signInWithPopup(auth, new GoogleAuthProvider());
       router.push("/profile");
     } catch (err) {
-      toast.error(
-        "Firebase isn't connected yet — add your project credentials to .env.local to enable Google login."
-      );
+      toast.error(friendlyAuthError(err));
     } finally {
       setLoading(false);
     }
