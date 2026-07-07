@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { Trash2, ShoppingBag } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ProductImage } from "@/components/shared/product-image";
@@ -18,8 +16,6 @@ export function CartContent() {
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
-  const clearCart = useCartStore((s) => s.clearCart);
-  const [checkingOut, setCheckingOut] = useState(false);
 
   const lines = items
     .map((item) => {
@@ -33,15 +29,6 @@ export function CartContent() {
   const subtotal = lines.reduce((sum, l) => sum + l.product.price * l.item.quantity, 0);
   const tax = subtotal * TAX_RATE;
   const total = subtotal + tax;
-
-  function handleCheckout() {
-    setCheckingOut(true);
-    setTimeout(() => {
-      toast.success("Order placed! This is a simulated checkout for portfolio purposes.");
-      clearCart();
-      setCheckingOut(false);
-    }, 1200);
-  }
 
   if (lines.length === 0) {
     return (
@@ -135,8 +122,8 @@ export function CartContent() {
             <span>Total</span>
             <span>{formatPrice(subtotal > 75 ? total : total + 9.99)}</span>
           </div>
-          <Button className="w-full mt-6" size="lg" onClick={handleCheckout} disabled={checkingOut}>
-            {checkingOut ? "Processing..." : "Checkout"}
+          <Button render={<Link href="/checkout" />} className="w-full mt-6" size="lg">
+            Checkout
           </Button>
         </div>
       </div>

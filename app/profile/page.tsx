@@ -5,17 +5,21 @@ import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { LogOut, Package, Heart, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { auth } from "@/lib/firebase";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
+import { useOrdersStore } from "@/lib/store/orders-store";
 import { PRODUCTS } from "@/constants/products";
 import { ProductCard } from "@/components/shared/product-card";
+import { formatPrice } from "@/lib/format";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loaded, setLoaded] = useState(false);
   const productIds = useWishlistStore((s) => s.productIds);
   const wishlist = PRODUCTS.filter((p) => productIds.includes(p.id));
+  const orders = useOrdersStore((s) => s.orders);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -64,10 +68,40 @@ export default function ProfilePage() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="orders" className="pt-8">
-          <p className="text-muted-foreground text-sm">
-            No orders yet — this is a simulated checkout for portfolio purposes. Place an order from
-            the cart to see it appear here once order history is wired up.
-          </p>
+          {orders.length === 0 ? (
+            <p className="text-muted-foreground text-sm">
+              No orders yet. Place an order from the cart to see it appear here.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {orders.map((order) => (
+                <div key={order.id} className="rounded-xl border p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-mono text-sm font-medium">{order.id}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(order.createdAt).toLocaleDateString(undefined, {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                    <span className="text-xs font-medium uppercase tracking-wide text-primary">
+                      {order.status}
+                    </span>
+                  </div>
+                  <Separator className="my-3" />
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {order.items.reduce((n, i) => n + i.quantity, 0)} item(s)
+                    </span>
+                    <span className="font-semibold">{formatPrice(order.total)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </TabsContent>
         <TabsContent value="wishlist" className="pt-8">
           {wishlist.length === 0 ? (
