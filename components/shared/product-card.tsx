@@ -37,6 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <Card className="group relative overflow-hidden py-0 border-border/60 hover:shadow-lg transition-shadow">
+      {/* Wishlist button */}
       <button
         onClick={(e) => {
           e.preventDefault();
@@ -54,18 +55,8 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </button>
 
-      {product.stillInCompetition && (
-        <Badge className="absolute left-3 top-3 z-10 bg-[var(--gold)] text-[var(--gold-foreground)] font-bold uppercase tracking-wide">
-          Still Competing
-        </Badge>
-      )}
-      {product.compareAtPrice && (
-        <Badge variant="destructive" className="absolute left-3 top-3 z-10">
-          Sale
-        </Badge>
-      )}
-
       <Link href={`/product/${product.slug}`}>
+        {/* Product image */}
         <div className="aspect-square bg-muted flex items-center justify-center p-5 overflow-hidden">
           <ProductImage
             src={team?.jerseyImage}
@@ -76,7 +67,27 @@ export function ProductCard({ product }: { product: Product }) {
             className="h-full w-full transition-transform duration-300 group-hover:scale-105"
           />
         </div>
+
         <CardContent className="p-4">
+          {/* Badges row — below image, always visible */}
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {product.stock === 0 && (
+              <Badge variant="destructive" className="text-xs font-semibold uppercase tracking-wide">
+                Out of Stock
+              </Badge>
+            )}
+            {product.stillInCompetition && product.stock > 0 && (
+              <Badge className="text-xs font-semibold uppercase tracking-wide bg-amber-500 text-white hover:bg-amber-500">
+                🔥 Trending
+              </Badge>
+            )}
+            {product.compareAtPrice && (
+              <Badge variant="destructive" className="text-xs font-semibold uppercase tracking-wide">
+                Sale
+              </Badge>
+            )}
+          </div>
+
           <p className="text-xs text-muted-foreground">{product.brand}</p>
           <h3 className="font-medium leading-snug line-clamp-2 mt-0.5">{product.name}</h3>
           <div className="mt-2 flex items-center gap-2">
