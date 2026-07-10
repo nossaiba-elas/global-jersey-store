@@ -11,8 +11,11 @@ export interface ShippingInfo {
   country: string;
 }
 
+export type OrderStatus = "confirmed" | "processing" | "shipped" | "delivered";
+
 export interface Order {
   id: string;
+  orderNumber: string; // e.g. GJS-2026-000042
   createdAt: string;
   items: CartItem[];
   shipping: ShippingInfo;
@@ -20,19 +23,32 @@ export interface Order {
   tax: number;
   shippingCost: number;
   total: number;
-  status: "confirmed";
+  status: OrderStatus;
+  estimatedDelivery?: string;
 }
 
 interface OrdersState {
   orders: Order[];
+  orderCount: number;
   addOrder: (order: Order) => void;
+  nextOrderNumber: () => string;
 }
 
 export const useOrdersStore = create<OrdersState>()(
   persist(
     (set, get) => ({
       orders: [],
-      addOrder: (order) => set({ orders: [order, ...get().orders] }),
+      orderCount: 1000,
+      addOrder: (order) =>
+        set((s) => ({
+          orders: [order, ...s.orders],
+          orderCount: s.orderCount + 1,
+        })),
+      nextOrderNumber: () => {
+        const count = get().orderCount + 1;
+        const year = new Date().getFullYear();
+        return `GJS-${year}-${String(count).padStart(6, "0")}`;
+      },
     }),
     { name: "global-jersey-orders" }
   )
