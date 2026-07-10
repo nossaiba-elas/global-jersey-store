@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  Plus, Pencil, Trash2, Package, Users, ShoppingCart,
+  Pencil, Trash2, Package, Users, ShoppingCart,
   TrendingUp, DollarSign, Eye, Search, ChevronDown, ChevronUp,
   CheckCircle2, Truck, RefreshCw, Clock, BarChart3, Settings
 } from "lucide-react";
@@ -58,7 +58,6 @@ export function AdminDashboard() {
 
   const orders = useOrdersStore((s) => s.orders);
   const products = useProductsStore((s) => s.products);
-  const addProductToStore = useProductsStore((s) => s.addProduct);
   const updateProductInStore = useProductsStore((s) => s.updateProduct);
   const deleteProductFromStore = useProductsStore((s) => s.deleteProduct);
 
@@ -76,27 +75,6 @@ export function AdminDashboard() {
     if (editing) {
       updateProductInStore(editing.id, updated);
       toast.success("Product updated.");
-    } else {
-      const newProduct: Product = {
-        id: `custom-${Date.now()}`,
-        name: updated.name || "New Jersey",
-        slug: `new-jersey-${Date.now()}`,
-        country: updated.country || "Custom",
-        countryCode: "XX",
-        brand: updated.brand || "Generic",
-        price: Number(updated.price) || 79.99,
-        sizes: ["S", "M", "L", "XL"],
-        description: "New product added via admin dashboard.",
-        images: updated.images ?? [],
-        stock: Number(updated.stock) || 0,
-        rating: 0,
-        reviews: [],
-        isFeatured: false,
-        category: "home",
-        createdAt: new Date().toISOString(),
-      };
-      addProductToStore(newProduct);
-      toast.success("Product created — visible in the shop now!");
     }
     setOpen(false);
     setEditing(null);
@@ -304,9 +282,6 @@ export function AdminDashboard() {
               />
             </div>
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger render={<Button className="gap-2" onClick={() => setEditing(null)} />}>
-                <Plus className="size-4" /> Add Product
-              </DialogTrigger>
               <ProductFormDialog editing={editing} onSave={handleSave} />
             </Dialog>
           </div>
