@@ -432,12 +432,14 @@ function ProductFormDialog({ editing, onSave }: { editing: Product | null; onSav
       <form className="space-y-4" onSubmit={(e) => {
         e.preventDefault();
         const form = new FormData(e.currentTarget);
+        const imageUrl = String(form.get("imageUrl") || "");
         onSave({
           name: String(form.get("name") || editing?.name),
           brand: String(form.get("brand") || editing?.brand),
           country: String(form.get("country") || editing?.country),
           price: Number(form.get("price") || editing?.price),
           stock: Number(form.get("stock") || editing?.stock),
+          images: imageUrl ? [imageUrl] : (editing?.images ?? []),
         });
       }}>
         <div>
@@ -463,6 +465,26 @@ function ProductFormDialog({ editing, onSave }: { editing: Product | null; onSav
             <Label htmlFor="stock">Stock</Label>
             <Input id="stock" name="stock" type="number" defaultValue={editing?.stock ?? 50} className="mt-1.5" required />
           </div>
+        </div>
+        <div>
+          <Label htmlFor="imageUrl">Image URL <span className="text-muted-foreground font-normal">(optional)</span></Label>
+          <Input
+            id="imageUrl"
+            name="imageUrl"
+            type="url"
+            defaultValue={editing?.images?.[0] ?? ""}
+            className="mt-1.5"
+            placeholder="https://example.com/jersey.jpg"
+          />
+          {editing?.images?.[0] && (
+            <img
+              src={editing.images[0]}
+              alt="Preview"
+              className="mt-2 h-20 w-20 object-cover rounded-lg border"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            />
+          )}
+          <p className="text-xs text-muted-foreground mt-1">Paste a direct image link (jpg, png, webp)</p>
         </div>
         <DialogFooter>
           <Button type="submit" className="w-full">{editing ? "Save Changes" : "Create Product"}</Button>
