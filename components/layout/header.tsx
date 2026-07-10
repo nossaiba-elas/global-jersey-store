@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ShoppingBag, Heart, User, Menu } from "lucide-react";
+import { ShoppingBag, Heart, User, Menu, LayoutDashboard } from "lucide-react";
+import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -15,7 +16,10 @@ import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
+import { auth } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
+
+const ADMIN_EMAIL = "elasrinossaiba@gmail.com";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -35,14 +39,22 @@ function CountBadge({ count }: { count: number }) {
 
 export function Header() {
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const cartCount = useCartStore((s) => s.items.reduce((acc, i) => acc + i.quantity, 0));
   const wishlistCount = useWishlistStore((s) => s.productIds.length);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    return unsub;
+  }, []);
+
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75 shadow-[inset_0_-1px_0_0_var(--border),0_1px_0_0_var(--gold)]">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+        {/* Mobile menu */}
         <Sheet>
           <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden" aria-label="Open menu" />}>
             <Menu className="size-5" />
@@ -59,15 +71,26 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="rounded-md px-3 py-2.5 text-sm font-medium text-primary hover:bg-accent flex items-center gap-2 mt-2 border-t pt-4"
+                >
+                  <LayoutDashboard className="size-4" />
+                  Admin Dashboard
+                </Link>
+              )}
             </nav>
           </SheetContent>
         </Sheet>
 
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2 font-bold tracking-tight text-lg shrink-0">
           <Logo className="size-8 shrink-0" />
           <span className="hidden sm:inline">Global Jersey Store</span>
         </Link>
 
+        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1 ml-4">
           {NAV_LINKS.map((link) => (
             <Link
@@ -82,12 +105,30 @@ export function Header() {
           ))}
         </nav>
 
+        {/* Search */}
         <div className="flex-1 hidden sm:flex justify-center px-4">
           <InstantSearch />
         </div>
 
+        {/* Right icons */}
         <div className="flex items-center gap-1 ml-auto">
           <ThemeToggle />
+
+          {/* Admin button — visible only for admin */}
+          {mounted && isAdmin && (
+            <Link href="/admin">
+              <Button
+                variant="outline"
+                size="sm"
+                className="hidden sm:flex items-center gap-1.5 text-xs font-semibold border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                aria-label="Admin Dashboard"
+              >
+                <LayoutDashboard className="size-3.5" />
+                Admin
+              </Button>
+            </Link>
+          )}
+
           <Link href="/wishlist">
             <Button variant="ghost" size="icon" className="relative" aria-label="Wishlist">
               <Heart className="size-5" />
@@ -107,6 +148,8 @@ export function Header() {
           </Link>
         </div>
       </div>
+
+      {/* Mobile search */}
       <div className="sm:hidden px-4 pb-3">
         <InstantSearch />
       </div>
