@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { auth } from "@/lib/firebase";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
 import { useOrdersStore, type Order } from "@/lib/store/orders-store";
-import { PRODUCTS } from "@/constants/products";
+import { useProductsStore } from "@/lib/store/products-store";
 import { TEAMS } from "@/constants/teams";
 import { ProductCard } from "@/components/shared/product-card";
 import { ProductImage } from "@/components/shared/product-image";
@@ -52,17 +52,18 @@ const STATUS_CONFIG = {
 // ─── Order Card ───────────────────────────────────────────────────────────────
 function OrderCard({ order }: { order: Order }) {
   const [expanded, setExpanded] = useState(false);
+  const storeProducts = useProductsStore((s) => s.products);
   const status = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.confirmed;
   const StatusIcon = status.icon;
 
   const lines = order.items
     .map((item) => {
-      const product = PRODUCTS.find((p) => p.id === item.productId);
+      const product = storeProducts.find((p) => p.id === item.productId);
       if (!product) return null;
       const team = TEAMS.find((t) => t.countryCode === product.countryCode);
       return { item, product, team };
     })
-    .filter(Boolean) as { item: (typeof order.items)[number]; product: (typeof PRODUCTS)[number]; team: (typeof TEAMS)[number] | undefined }[];
+    .filter(Boolean) as { item: (typeof order.items)[number]; product: NonNullable<ReturnType<typeof storeProducts.find>>; team: (typeof TEAMS)[number] | undefined }[];
 
   const totalItems = order.items.reduce((n, i) => n + i.quantity, 0);
 
@@ -225,7 +226,8 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loaded, setLoaded] = useState(false);
   const productIds = useWishlistStore((s) => s.productIds);
-  const wishlist = PRODUCTS.filter((p) => productIds.includes(p.id));
+  const allProducts = useProductsStore((s) => s.products);
+  const wishlist = allProducts.filter((p) => productIds.includes(p.id));
   const orders = useOrdersStore((s) => s.orders);
 
   useEffect(() => {

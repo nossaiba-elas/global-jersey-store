@@ -5,11 +5,12 @@ import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/shared/product-card";
 import { useWishlistStore } from "@/lib/store/wishlist-store";
-import { PRODUCTS } from "@/constants/products";
+import { useProductsStore } from "@/lib/store/products-store";
 
 export default function WishlistPage() {
+  const products = useProductsStore((s) => s.products);
   const productIds = useWishlistStore((s) => s.productIds);
-  const items = PRODUCTS.filter((p) => productIds.includes(p.id));
+  const items = products.filter((p) => productIds.includes(p.id));
 
   if (items.length === 0) {
     return (

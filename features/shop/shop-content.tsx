@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/s
 import { ProductCard, ProductCardSkeleton } from "@/components/shared/product-card";
 import { FiltersSidebar, DEFAULT_FILTERS, type ShopFilters } from "./filters-sidebar";
 import { SortDropdown, type SortOption } from "./sort-dropdown";
-import { PRODUCTS } from "@/constants/products";
+import { useProductsStore } from "@/lib/store/products-store";
 import {
   Pagination,
   PaginationContent,
@@ -39,10 +39,11 @@ export function ShopContent() {
     return () => clearTimeout(t);
   }, []);
 
+  const products = useProductsStore((s) => s.products);
   const trendingOnly = searchParams.get("filter") === "trending";
 
   const filtered = useMemo(() => {
-    let list = PRODUCTS.filter((p) => {
+    let list = products.filter((p) => {
       if (filters.countries.length && !filters.countries.includes(p.country)) return false;
       if (filters.brands.length && !filters.brands.includes(p.brand)) return false;
       if (filters.sizes.length && !p.sizes.some((s) => filters.sizes.includes(s))) return false;

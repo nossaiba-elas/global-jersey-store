@@ -7,24 +7,25 @@ import { Separator } from "@/components/ui/separator";
 import { ProductImage } from "@/components/shared/product-image";
 import { formatPrice } from "@/lib/format";
 import { useCartStore } from "@/lib/store/cart-store";
-import { PRODUCTS } from "@/constants/products";
+import { useProductsStore } from "@/lib/store/products-store";
 import { TEAMS } from "@/constants/teams";
 
 const TAX_RATE = 0.08;
 
 export function CartContent() {
+  const products = useProductsStore((s) => s.products);
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
 
   const lines = items
     .map((item) => {
-      const product = PRODUCTS.find((p) => p.id === item.productId);
+      const product = products.find((p) => p.id === item.productId);
       if (!product) return null;
       const team = TEAMS.find((t) => t.countryCode === product.countryCode);
       return { item, product, team };
     })
-    .filter(Boolean) as { item: (typeof items)[number]; product: (typeof PRODUCTS)[number]; team: (typeof TEAMS)[number] | undefined }[];
+    .filter(Boolean) as { item: (typeof items)[number]; product: NonNullable<ReturnType<typeof products.find>>; team: (typeof TEAMS)[number] | undefined }[];
 
   const subtotal = lines.reduce((sum, l) => sum + l.product.price * l.item.quantity, 0);
   const tax = subtotal * TAX_RATE;

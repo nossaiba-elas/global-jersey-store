@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatPrice } from "@/lib/format";
 import { PRODUCTS } from "@/constants/products";
 import { useOrdersStore, type Order, type OrderStatus } from "@/lib/store/orders-store";
+import { useProductsStore } from "@/lib/store/products-store";
 import type { Product } from "@/types/product";
 import { cn } from "@/lib/utils";
 
@@ -50,13 +51,16 @@ function StatCard({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function AdminDashboard() {
-  const [products, setProducts] = useState<Product[]>(PRODUCTS.slice(0, 20));
   const [editing, setEditing] = useState<Product | null>(null);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   const orders = useOrdersStore((s) => s.orders);
+  const products = useProductsStore((s) => s.products);
+  const addProductToStore = useProductsStore((s) => s.addProduct);
+  const updateProductInStore = useProductsStore((s) => s.updateProduct);
+  const deleteProductFromStore = useProductsStore((s) => s.deleteProduct);
 
   // ─── Computed stats ───────────────────────────────────────────────────────
   const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
@@ -70,7 +74,7 @@ export function AdminDashboard() {
 
   function handleSave(updated: Partial<Product>) {
     if (editing) {
-      setProducts((prev) => prev.map((p) => (p.id === editing.id ? { ...p, ...updated } : p)));
+      updateProductInStore(editing.id, updated);
       toast.success("Product updated.");
     } else {
       const newProduct: Product = {
@@ -83,7 +87,7 @@ export function AdminDashboard() {
         price: Number(updated.price) || 79.99,
         sizes: ["S", "M", "L", "XL"],
         description: "New product added via admin dashboard.",
-        images: [],
+        images: updated.images ?? [],
         stock: Number(updated.stock) || 0,
         rating: 0,
         reviews: [],
@@ -91,15 +95,15 @@ export function AdminDashboard() {
         category: "home",
         createdAt: new Date().toISOString(),
       };
-      setProducts((prev) => [newProduct, ...prev]);
-      toast.success("Product created.");
+      addProductToStore(newProduct);
+      toast.success("Product created — visible in the shop now!");
     }
     setOpen(false);
     setEditing(null);
   }
 
   function handleDelete(id: string) {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    deleteProductFromStore(id);
     toast.success("Product deleted.");
   }
 
@@ -238,7 +242,7 @@ export function AdminDashboard() {
                             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Items Ordered</p>
                             <div className="space-y-2">
                               {order.items.map((item) => {
-                                const product = PRODUCTS.find((p) => p.id === item.productId);
+                                const product = products.find((p) => p.id === item.productId);
                                 return (
                                   <div key={`${item.productId}-${item.size}`} className="flex items-center justify-between text-sm bg-card rounded-lg px-3 py-2">
                                     <div>
@@ -332,11 +336,7 @@ export function AdminDashboard() {
                           defaultValue={p.stock}
                           className="h-8 w-20 text-center"
                           onBlur={(e) =>
-                            setProducts((prev) =>
-                              prev.map((prod) =>
-                                prod.id === p.id ? { ...prod, stock: Number(e.target.value) } : prod
-                              )
-                            )
+                            updateProductInStore(p.id, { stock: Number(e.target.value) })
                           }
                         />
                       </td>

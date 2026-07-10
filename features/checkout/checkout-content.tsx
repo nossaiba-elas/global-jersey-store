@@ -17,7 +17,7 @@ import { formatPrice } from "@/lib/format";
 import { useCartStore } from "@/lib/store/cart-store";
 import { useOrdersStore, type ShippingInfo } from "@/lib/store/orders-store";
 import { auth } from "@/lib/firebase";
-import { PRODUCTS } from "@/constants/products";
+import { useProductsStore } from "@/lib/store/products-store";
 import { TEAMS } from "@/constants/teams";
 
 const TAX_RATE = 0.08;
@@ -42,6 +42,7 @@ function getEstimatedDelivery() {
 export function CheckoutContent() {
   const items = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clearCart);
+  const allProducts = useProductsStore((s) => s.products);
   const addOrder = useOrdersStore((s) => s.addOrder);
   const nextOrderNumber = useOrdersStore((s) => s.nextOrderNumber);
   const [placedOrder, setPlacedOrder] = useState<{ id: string; number: string; delivery: string } | null>(null);
@@ -66,14 +67,14 @@ export function CheckoutContent() {
 
   const lines = items
     .map((item) => {
-      const product = PRODUCTS.find((p) => p.id === item.productId);
+      const product = allProducts.find((p) => p.id === item.productId);
       if (!product) return null;
       const team = TEAMS.find((t) => t.countryCode === product.countryCode);
       return { item, product, team };
     })
     .filter(Boolean) as {
     item: (typeof items)[number];
-    product: (typeof PRODUCTS)[number];
+    product: NonNullable<ReturnType<typeof allProducts.find>>;
     team: (typeof TEAMS)[number] | undefined;
   }[];
 
